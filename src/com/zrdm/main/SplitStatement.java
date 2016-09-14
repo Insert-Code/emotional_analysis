@@ -30,7 +30,12 @@ public class SplitStatement {
 	
 	public void analysis() throws Exception{
 		jsonStr = "";
-		text = URLEncoder.encode(text, "utf-8");
+		text = text.replaceAll("？", " ");
+		text = text.replaceAll("。", " ");
+		text = text.replaceAll("！", " ");
+		text = text.replaceAll("；", " ");
+		text = URLEncoder.encode(text, "utf-8");		
+		
 		URL url = new URL("http://api.ltp-cloud.com/analysis/?" + "api_key="
 				+ api_key + "&" + "text=" + text + "&" + "format=" + format
 				+ "&" + "pattern=" + pattern);
@@ -45,8 +50,8 @@ public class SplitStatement {
 				continue;
 			}
 			jsonStr += line;
+			//System.out.println(line);
 		}		
-	
 		jsonStr = jsonStr.substring(0,jsonStr.length()-2);
 		innet.close();
 	}
