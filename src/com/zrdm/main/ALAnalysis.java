@@ -31,6 +31,14 @@ public class ALAnalysis {
 	private String[] negative_Array = { "不", "不好", "否", "不许", "无", "勿", "毋",
 			"非", "莫", "禁止", "禁", "防止", "杜绝", "拒绝" };
 
+	private String text = "";
+	private String zf = "";
+	private String pl = "";
+	private String dz = "";
+	private int zhuanfa = 0;
+	private int pinglun = 0;
+	private int dianzan = 0;
+
 	public ALAnalysis() throws Exception {
 		alAnalysis();
 	}
@@ -42,7 +50,11 @@ public class ALAnalysis {
 		ResultSet rs1 = db.executeQuery(sql);
 		while (rs1.next()) {
 			score = 0;
-			String text = rs1.getString("博文内容");
+			text = rs1.getString("博文内容");
+			zf = rs1.getString("转发数");
+			pl = rs1.getString("评论数");
+			dz = rs1.getString("点赞数");
+			
 			sps.setText(text);
 			sps.analysis();
 
@@ -60,7 +72,7 @@ public class ALAnalysis {
 				word = jsonObj.getString("cont");
 				semrelate = jsonObj.getString("semrelate");
 
-				System.out.print(word + " ");
+				//System.out.print(word + " ");
 				ResultSet rs = db.executeQuery_Pr(sql, word);
 				for (int j = 0; j < negative_Array.length; j++) {
 					// 如果有否定词，且该否定词为另一个词的否定标记，取得另一个词的id;
@@ -87,13 +99,28 @@ public class ALAnalysis {
 							single_score *= -1;
 						}
 						score += single_score;
-						System.out.print("single_score = " + single_score + " ");
+						//System.out.print("single_score = " + single_score + " ");
 					}
 				}
 
 			}
-			System.out.println();
+			//System.out.println();
+			
+			if(!zf.equals("")){
+				zhuanfa = Integer.parseInt(zf);
+				score *= zhuanfa;
+			}
+			if(!pl.equals("")){
+				pinglun = Integer.parseInt(pl);
+				score *= pinglun;
+			}
+			if(!dz.equals("")){
+				dianzan = Integer.parseInt(dz);
+				score *= dianzan;				
+			}
 			System.out.println("score = " + score + " ");
+			sql = "update weibo set 总分数 = ? where 博文内容 = '" + text + "'";
+			db.executeUpdate_Pre(sql,score+"");
 		}
 	}
 
